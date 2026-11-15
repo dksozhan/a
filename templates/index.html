@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sprout · Plant & Spacing Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #eef3e2;
+      --card: #fbfaf3;
+      --forest: #1f4d36;
+      --leaf: #3f8f5b;
+      --lime: #c9e265;
+      --soil: #6b4a2f;
+      --text: #24352b;
+      --muted: #7a8b7e;
+      --line: #dfe6cf;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Nunito", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 12% 18%, #dcebb8 0, transparent 38%),
+        radial-gradient(circle at 88% 82%, #cfe5c4 0, transparent 40%),
+        var(--bg);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 760px;
+      height: min(92vh, 820px);
+      background: var(--card);
+      border-radius: 28px;
+      box-shadow: 0 24px 60px rgba(31, 77, 54, 0.18);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    /* Header */
+    header {
+      background: var(--forest);
+      color: #fff;
+      padding: 20px 26px 26px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    header::after {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; bottom: -1px;
+      height: 16px;
+      background: var(--card);
+      border-radius: 24px 24px 0 0;
+    }
+
+    .logo {
+      width: 52px; height: 52px;
+      background: var(--lime);
+      border-radius: 50% 50% 50% 8px;
+      display: grid;
+      place-items: center;
+      font-size: 26px;
+      transform: rotate(-8deg);
+    }
+
+    header h1 {
+      font-family: "Fraunces", serif;
+      font-size: 24px;
+      letter-spacing: 0.3px;
+    }
+
+    header p { font-size: 13px; opacity: 0.8; margin-top: 2px; }
+
+    /* Messages */
+    #chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 26px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      scroll-behavior: smooth;
+    }
+
+    .msg {
+      max-width: 82%;
+      padding: 12px 16px;
+      line-height: 1.55;
+      font-size: 15px;
+      animation: rise 0.3s ease;
+      word-wrap: break-word;
+    }
+
+    .msg.bot {
+      align-self: flex-start;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 4px 20px 20px 20px;
+    }
+
+    .msg.user {
+      align-self: flex-end;
+      background: var(--leaf);
+      color: #fff;
+      border-radius: 20px 4px 20px 20px;
+    }
+
+    .msg.error {
+      align-self: flex-start;
+      background: #fdeceb;
+      color: #9a2f2a;
+      border-radius: 4px 20px 20px 20px;
+    }
+
+    .msg ul { margin: 6px 0 6px 20px; }
+    .msg strong { color: var(--forest); }
+    .msg.user strong { color: #fff; }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    /* Suggestion chips */
+    #chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 4px 26px 12px;
+    }
+
+    .chip {
+      font: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--forest);
+      background: #eaf3cf;
+      border: 1px dashed var(--leaf);
+      border-radius: 999px;
+      padding: 7px 14px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .chip:hover { background: var(--lime); transform: translateY(-2px); }
+
+    /* Typing indicator */
+    .typing { display: flex; gap: 5px; padding: 16px; }
+    .typing span {
+      width: 8px; height: 8px;
+      background: var(--leaf);
+      border-radius: 50% 50% 50% 0;
+      animation: sway 1s infinite ease-in-out;
+    }
+    .typing span:nth-child(2) { animation-delay: 0.15s; }
+    .typing span:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes sway {
+      0%, 100% { transform: translateY(0) rotate(0); opacity: 0.5; }
+      50%      { transform: translateY(-6px) rotate(20deg); opacity: 1; }
+    }
+
+    /* Input */
+    form {
+      display: flex;
+      gap: 10px;
+      padding: 14px 20px 20px;
+      border-top: 1px solid var(--line);
+      background: var(--card);
+    }
+
+    #input {
+      flex: 1;
+      font: inherit;
+      font-size: 15px;
+      padding: 14px 18px;
+      border: 2px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    #input:focus { border-color: var(--leaf); }
+
+    #send {
+      width: 50px; height: 50px;
+      border: none;
+      border-radius: 50% 50% 50% 10px;
+      background: var(--forest);
+      color: var(--lime);
+      font-size: 20px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    #send:hover { background: var(--leaf); transform: rotate(-10deg) scale(1.05); }
+    #send:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    @media (max-width: 520px) {
+      body { padding: 0; }
+      .app { height: 100vh; border-radius: 0; }
+      .msg { max-width: 92%; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div class="logo">🌱</div>
+      <div>
+        <h1>Sprout</h1>
+        <p>Your guide to plants &amp; plant spacing</p>
+      </div>
+    </header>
+
+    <section id="chat"></section>
+
+    <div id="chips">
+      <button class="chip">Tomato spacing</button>
+      <button class="chip">Why does spacing matter?</button>
+      <button class="chip">Spacing for rice paddy</button>
+      <button class="chip">Row vs plant spacing</button>
+    </div>
+
+    <form id="form" autocomplete="off">
+      <input id="input" type="text" placeholder="Ask about a plant or its spacing..." maxlength="1000" required>
+      <button id="send" type="submit" aria-label="Send">➤</button>
+    </form>
+  </main>
+
+  <script>
+    const chat = document.getElementById("chat");
+    const form = document.getElementById("form");
+    const input = document.getElementById("input");
+    const sendBtn = document.getElementById("send");
+    const chips = document.getElementById("chips");
+
+    let history = [];
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function formatText(text) {
+      const lines = escapeHtml(text).split("\n");
+      let html = "";
+      let inList = false;
+
+      for (const line of lines) {
+        const bullet = line.match(/^\s*[-*•]\s+(.*)/);
+        if (bullet) {
+          if (!inList) { html += "<ul>"; inList = true; }
+          html += `<li>${bullet[1]}</li>`;
+        } else {
+          if (inList) { html += "</ul>"; inList = false; }
+          if (line.trim()) html += `<p>${line}</p>`;
+        }
+      }
+      if (inList) html += "</ul>";
+
+      return html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+    }
+
+    function addMessage(text, type) {
+      const el = document.createElement("div");
+      el.className = `msg ${type}`;
+      el.innerHTML = type === "user" ? escapeHtml(text) : formatText(text);
+      chat.appendChild(el);
+      chat.scrollTop = chat.scrollHeight;
+      return el;
+    }
+
+    function showTyping() {
+      const el = document.createElement("div");
+      el.className = "msg bot typing";
+      el.innerHTML = "<span></span><span></span><span></span>";
+      chat.appendChild(el);
+      chat.scrollTop = chat.scrollHeight;
+      return el;
+    }
+
+    async function sendMessage(message) {
+      chips.style.display = "none";
+      addMessage(message, "user");
+      input.value = "";
+      sendBtn.disabled = true;
+      const typing = showTyping();
+
+      try {
+        const response = await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message, history })
+        });
+        const data = await response.json();
+        typing.remove();
+
+        if (!response.ok) {
+          addMessage(data.error || "Something went wrong.", "error");
+        } else {
+          addMessage(data.reply, "bot");
+          history.push({ role: "user", text: message });
+          history.push({ role: "model", text: data.reply });
+        }
+      } catch {
+        typing.remove();
+        addMessage("Could not reach the server. Please try again.", "error");
+      } finally {
+        sendBtn.disabled = false;
+        input.focus();
+      }
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const message = input.value.trim();
+      if (message) sendMessage(message);
+    });
+
+    chips.addEventListener("click", (event) => {
+      if (event.target.classList.contains("chip")) sendMessage(event.target.textContent);
+    });
+
+    addMessage("Hi, I'm Sprout 🌿 Ask me about plants and how far apart to plant them.", "bot");
+  </script>
+</body>
+</html>
